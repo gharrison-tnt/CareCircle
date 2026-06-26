@@ -283,9 +283,127 @@ select:focus{outline:none;border-color:var(--teal);}
 .msg-input{flex:1;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;font-family:inherit;background:white;color:var(--text);}
 .toast{position:fixed;bottom:24px;right:24px;background:#1A1A2E;color:white;padding:11px 18px;border-radius:8px;font-size:13px;z-index:999;box-shadow:var(--shadow-md);transition:opacity 0.3s;}
 @media(max-width:680px){.grid-2,.grid-3,.grid-4,.act-plan,.fam-act-plan,.cares-steps{grid-template-columns:1fr;}.mode-bar,.staff-nav,.fam-nav,.fam-tabs-bar{padding-left:12px;padding-right:12px;}.page,.fam-page{padding:12px;}}
+
+/* ═══ AUTH GATE ═══ */
+#auth-gate{position:fixed;inset:0;background:#0F1923;display:flex;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
+.auth-box{background:#fff;border-radius:16px;padding:40px;max-width:420px;width:90%;box-shadow:0 24px 64px rgba(0,0,0,0.4);}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.auth-logo-dot{width:11px;height:11px;border-radius:50%;background:var(--teal);}
+.auth-logo-text{font-size:17px;font-weight:600;color:var(--teal-dark);}
+.auth-tagline{font-size:13px;color:var(--text-muted);margin-bottom:28px;}
+.auth-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text);margin-bottom:8px;display:block;}
+.auth-input{width:100%;padding:12px 14px;border:1.5px solid var(--border-strong);border-radius:10px;font-size:18px;font-family:'Courier New',monospace;letter-spacing:0.2em;text-transform:uppercase;color:var(--text);background:var(--gray-50);transition:border-color 0.15s;text-align:center;}
+.auth-input:focus{outline:none;border-color:var(--teal);background:#fff;}
+.auth-btn{width:100%;padding:12px;background:var(--teal);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:14px;transition:background 0.15s;}
+.auth-btn:hover{background:var(--teal-dark);}
+.auth-err{font-size:12px;color:var(--red);background:var(--red-light);border:1px solid var(--red-mid);border-radius:8px;padding:9px 12px;margin-top:10px;display:none;text-align:center;}
+.auth-err.show{display:block;}
+.auth-footer{font-size:11px;color:var(--text-muted);text-align:center;margin-top:20px;line-height:1.6;}
+.auth-info{background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:10px;padding:12px 14px;margin-top:16px;font-size:12px;color:var(--teal-dark);line-height:1.6;}
+/* ═══ ADMIN PANEL ═══ */
+#admin-panel{position:fixed;inset:0;background:rgba(15,25,35,0.92);display:none;align-items:flex-start;justify-content:center;z-index:9998;overflow-y:auto;padding:24px;}
+#admin-panel.show{display:flex;}
+.admin-box{background:#fff;border-radius:16px;padding:32px;max-width:820px;width:100%;margin:auto;}
+.admin-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.admin-title{font-size:18px;font-weight:700;color:var(--text);}
+.admin-close{background:var(--gray-100);border:none;border-radius:8px;padding:7px 14px;cursor:pointer;font-size:13px;color:var(--text);}
+.pilot-table{width:100%;border-collapse:collapse;font-size:13px;}
+.pilot-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-muted);padding:6px 10px;border-bottom:2px solid var(--border);}
+.pilot-table td{padding:10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.pilot-table tr:hover td{background:var(--gray-50);}
+.cp{font-family:'Courier New',monospace;font-size:12px;font-weight:700;letter-spacing:0.1em;padding:3px 8px;border-radius:5px;}
+.cp-fam{background:var(--blue-light);color:var(--blue);}
+.cp-fac{background:var(--teal-light);color:var(--teal-dark);}
+.cp-admin{background:#1A1A2E;color:white;}
+.gen-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.gen-b{padding:9px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:all 0.15s;}
+.gen-fam{background:var(--blue-light);color:var(--blue);border:1px solid var(--blue-mid);}
+.gen-fac{background:var(--teal-light);color:var(--teal-dark);border:1px solid var(--teal-mid);}
+.gen-fam:hover{background:var(--blue);color:white;}
+.gen-fac:hover{background:var(--teal);color:white;}
+.cpill{font-size:10px;padding:2px 7px;background:var(--gray-100);border:1px solid var(--border);border-radius:4px;cursor:pointer;margin-left:6px;color:var(--text-muted);}
+.cpill:hover{background:var(--teal-light);color:var(--teal-dark);}
+.pbadge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;}
+.pbadge-fam{background:var(--blue-light);color:var(--blue);}
+.pbadge-fac{background:var(--teal-light);color:var(--teal-dark);}
+.stat-row{display:flex;gap:12px;margin-bottom:20px;}
+.stat-box{flex:1;background:var(--gray-50);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.stat-num{font-size:24px;font-weight:700;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.04em;margin-top:3px;}
+.note-inp{width:100%;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:12px;font-family:inherit;}
+/* ═══ SESSION BANNER ═══ */
+.session-banner{background:#1A1A2E;padding:4px 16px;display:none;align-items:center;gap:10px;font-size:11px;}
+.session-banner.show{display:flex;}
+.sb-code{font-family:'Courier New',monospace;font-weight:700;letter-spacing:0.1em;padding:1px 7px;border-radius:4px;font-size:11px;}
+.sb-fam{background:var(--blue);color:white;}
+.sb-fac{background:var(--teal-dark);color:white;}
+.sb-admin-c{background:white;color:#1A1A2E;}
+.sb-role{color:rgba(255,255,255,0.45);font-size:11px;}
+.sb-logout{margin-left:auto;font-size:11px;color:rgba(255,255,255,0.4);cursor:pointer;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.15);}
+.sb-logout:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);}
+.sb-admin-btn{font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;padding:2px 8px;border-radius:4px;}
+.sb-admin-btn:hover{color:rgba(255,255,255,0.7);}
 </style>
 </head>
 <body>
+
+<!-- ═══ AUTH GATE ═══ -->
+<div id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-logo"><div class="auth-logo-dot"></div><div class="auth-logo-text">Care Companion</div></div>
+    <div class="auth-tagline" style="margin-bottom:4px;">Pilot Program — Private Access</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:24px;">Enter the access code you received from the Memory Care Project team.</div>
+    <label class="auth-label">Access Code</label>
+    <input class="auth-input" id="auth-input" type="text" maxlength="9" placeholder="FAM-XXXX" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')" onkeydown="if(event.key==='Enter')authSubmit()">
+    <button class="auth-btn" onclick="authSubmit()">Enter Pilot</button>
+    <div class="auth-err" id="auth-err">That code isn't recognized. Check the code you received and try again.</div>
+    <div class="auth-info" style="margin-top:16px;">🔒 Your data is private to your access code. No other participants can see your entries.</div>
+    <div class="auth-footer">Need help? <a href="mailto:consultwithatwist@gmail.com" style="color:var(--teal-dark);">consultwithatwist@gmail.com</a></div>
+  </div>
+</div>
+
+<!-- ═══ SESSION BANNER ═══ -->
+<div class="session-banner" id="session-banner">
+  <span class="sb-code" id="sb-code-pill"></span>
+  <span class="sb-role" id="sb-role-text"></span>
+  <span class="sb-admin-btn" id="sb-admin-btn" style="display:none;" onclick="showAdmin()">⚙ Admin</span>
+  <span class="sb-logout" onclick="authLogout()">Sign out</span>
+</div>
+
+<!-- ═══ ADMIN PANEL ═══ -->
+<div id="admin-panel">
+  <div class="admin-box">
+    <div class="admin-hdr">
+      <div class="admin-title">⚙ Pilot Admin — Memory Care Project</div>
+      <button class="admin-close" onclick="hideAdmin()">✕ Close</button>
+    </div>
+    <div class="stat-row" id="admin-stats"></div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Generate New Pilot Code</div>
+    <div class="gen-row">
+      <button class="gen-b gen-fam" onclick="generateCode('FAM')">+ Family Pilot Code</button>
+      <button class="gen-b gen-fac" onclick="generateCode('FAC')">+ Facility Pilot Code</button>
+    </div>
+    <div id="gen-result" style="margin-bottom:20px;display:none;">
+      <div style="background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:8px;padding:12px 14px;font-size:13px;">
+        <strong>New code generated:</strong>
+        <span class="cp" id="gen-result-code"></span>
+        <button class="cpill" onclick="copyLastCode()">Copy</button>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">Share this code with the pilot participant. Active immediately.</div>
+      </div>
+    </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Active Pilot Codes</div>
+    <table class="pilot-table">
+      <thead><tr><th>Code</th><th>Type</th><th>Label / Notes</th><th>Created</th><th>Last Used</th><th></th></tr></thead>
+      <tbody id="admin-tbody"></tbody>
+    </table>
+    <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);">
+      Codes stored in this browser's localStorage.
+      <button class="cpill" onclick="exportCodes()">Export JSON</button>
+      <button class="cpill" onclick="importCodesPrompt()">Import JSON</button>
+    </div>
+  </div>
+</div>
+
 <div class="mode-bar">
   <span class="mode-label">View as</span>
   <div class="mode-toggle">
@@ -744,6 +862,236 @@ function sendMsg(){const inp=document.getElementById('msg-input');const txt=inp.
 document.getElementById('msg-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendMsg();});
 function toast(msg){const ex=document.querySelector('.toast');if(ex)ex.remove();const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},3500);}
 document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+
+// ═══════════════════════════════════════════════════════════
+// PILOT AUTH + MULTI-TENANT ISOLATION — Memory Care Project
+// ═══════════════════════════════════════════════════════════
+
+const ADMIN_CODE = 'ADMIN-MCP';
+const CODES_KEY  = 'dcc_pilot_codes';
+const SESSION_KEY = 'dcc_session';
+
+// ─── Code registry helpers ─────────────────────────────────
+function getPilotCodes(){try{return JSON.parse(localStorage.getItem(CODES_KEY)||'[]');}catch(e){return[];}}
+function savePilotCodes(c){localStorage.setItem(CODES_KEY,JSON.stringify(c));}
+
+// Seed two demo codes on first ever load
+(function seedDefaults(){
+  if(getPilotCodes().length===0){
+    savePilotCodes([
+      {code:'FAM-DEMO',type:'FAM',label:'Demo — family pilot',created:new Date().toISOString(),lastUsed:null,active:true},
+      {code:'FAC-DEMO',type:'FAC',label:'Demo — facility pilot',created:new Date().toISOString(),lastUsed:null,active:true}
+    ]);
+  }
+})();
+
+// ─── Admin UI ─────────────────────────────────────────────
+let _lastGenCode = null;
+
+function generateCode(type){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let rand='';for(let i=0;i<4;i++)rand+=chars[Math.floor(Math.random()*chars.length)];
+  const code=type+'-'+rand;
+  const codes=getPilotCodes();
+  codes.push({code,type,label:'',created:new Date().toISOString(),lastUsed:null,active:true});
+  savePilotCodes(codes);
+  _lastGenCode=code;
+  const el=document.getElementById('gen-result-code');
+  el.textContent=code; el.className='cp cp-'+type.toLowerCase();
+  document.getElementById('gen-result').style.display='block';
+  renderAdminTable(); renderAdminStats();
+}
+
+function copyLastCode(){
+  if(_lastGenCode) navigator.clipboard.writeText(_lastGenCode).then(()=>toast('Code copied'));
+}
+
+function exportCodes(){
+  const blob=new Blob([JSON.stringify(getPilotCodes(),null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='dcc-pilot-codes.json'; a.click();
+}
+
+function importCodesPrompt(){
+  const raw=prompt('Paste exported JSON codes array:');
+  if(!raw) return;
+  try{
+    const imported=JSON.parse(raw);
+    if(!Array.isArray(imported)) throw new Error();
+    const existing=getPilotCodes();
+    const set=new Set(existing.map(c=>c.code));
+    savePilotCodes([...existing,...imported.filter(c=>!set.has(c.code))]);
+    renderAdminTable(); renderAdminStats(); toast('Codes imported');
+  }catch(e){alert('Invalid JSON.');}
+}
+
+function renderAdminStats(){
+  const c=getPilotCodes();
+  document.getElementById('admin-stats').innerHTML=
+    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.type==='FAM'&&x.active).length}</div><div class="stat-lbl">Family Pilots</div></div>`+
+    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.type==='FAC'&&x.active).length}</div><div class="stat-lbl">Facility Pilots</div></div>`+
+    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.lastUsed).length}</div><div class="stat-lbl">Ever Used</div></div>`+
+    `<div class="stat-box"><div class="stat-num">${c.length}</div><div class="stat-lbl">Total Codes</div></div>`;
+}
+
+function renderAdminTable(){
+  const codes=getPilotCodes();
+  const tbody=document.getElementById('admin-tbody');
+  if(!codes.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">No codes yet.</td></tr>';return;}
+  tbody.innerHTML=codes.map((c,i)=>{
+    const created=c.created?new Date(c.created).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}):'—';
+    const used=c.lastUsed?new Date(c.lastUsed).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'Never';
+    const hasData=!!localStorage.getItem('dcc_'+c.code+'_data');
+    const typeClass=c.type==='FAM'?'pbadge-fam':'pbadge-fac';
+    const inactive=!c.active?'style="opacity:0.45;"':'';
+    return `<tr ${inactive}>
+      <td><span class="cp cp-${c.type.toLowerCase()}">${c.code}</span><button class="cpill" onclick="navigator.clipboard.writeText('${c.code}').then(()=>toast('Copied'))">Copy</button></td>
+      <td><span class="pbadge ${typeClass}">${c.type==='FAM'?'Family':'Facility'}</span></td>
+      <td><input class="note-inp" value="${c.label||''}" placeholder="Label / notes..." onchange="updateCodeLabel(${i},this.value)"></td>
+      <td style="color:var(--text-muted);font-size:12px;">${created}</td>
+      <td style="font-size:12px;color:${c.lastUsed?'var(--teal-dark)':'var(--text-muted)'};">${used}${hasData?' <span style="font-size:9px;color:var(--teal);">●data</span>':''}</td>
+      <td>${c.active?`<button onclick="revokeCode(${i})" style="font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;">Revoke</button>`:`<span style="font-size:11px;color:var(--text-muted);">Revoked</span>`}</td>
+    </tr>`;
+  }).join('');
+}
+
+function updateCodeLabel(i,val){const c=getPilotCodes();if(c[i]){c[i].label=val;savePilotCodes(c);}}
+
+function revokeCode(i){
+  if(!confirm('Revoke this code? The participant will lose access, but their data is preserved.')) return;
+  const c=getPilotCodes(); if(c[i]){c[i].active=false;savePilotCodes(c);}
+  renderAdminTable(); renderAdminStats(); toast('Code revoked');
+}
+
+function showAdmin(){renderAdminStats();renderAdminTable();document.getElementById('admin-panel').classList.add('show');}
+function hideAdmin(){document.getElementById('admin-panel').classList.remove('show');}
+
+// ─── Session management ────────────────────────────────────
+let PILOT_SESSION=null;
+
+function getSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){return null;}}
+function saveSession(s){sessionStorage.setItem(SESSION_KEY,JSON.stringify(s));}
+
+function authSubmit(){
+  const raw=document.getElementById('auth-input').value.trim().toUpperCase();
+  const errEl=document.getElementById('auth-err');
+  errEl.classList.remove('show');
+
+  if(raw===ADMIN_CODE){
+    const s={code:raw,type:'ADMIN'};
+    PILOT_SESSION=s; saveSession(s); activateSession(s); return;
+  }
+
+  const codes=getPilotCodes();
+  const match=codes.find(c=>c.code===raw&&c.active!==false);
+  if(!match){
+    errEl.classList.add('show');
+    const inp=document.getElementById('auth-input');
+    inp.style.borderColor='var(--red)';
+    setTimeout(()=>{inp.style.borderColor='';},1600);
+    return;
+  }
+
+  match.lastUsed=new Date().toISOString();
+  savePilotCodes(codes);
+  const s={code:match.code,type:match.type};
+  PILOT_SESSION=s; saveSession(s); activateSession(s);
+}
+
+function activateSession(session){
+  document.getElementById('auth-gate').style.display='none';
+  const banner=document.getElementById('session-banner');
+  banner.classList.add('show');
+
+  const pill=document.getElementById('sb-code-pill');
+  pill.textContent=session.code;
+  pill.className='sb-code sb-'+session.type.toLowerCase();
+
+  document.getElementById('sb-role-text').textContent={FAM:'Family Pilot',FAC:'Facility Pilot',ADMIN:'Admin ★'}[session.type]||session.type;
+
+  if(session.type==='ADMIN'){
+    document.getElementById('sb-admin-btn').style.display='inline';
+  }
+
+  // Lock into appropriate view
+  if(session.type==='FAM'){
+    document.querySelector('.mode-bar').style.display='none';
+    setMode('family');
+  } else {
+    // FAC or ADMIN get full staff view
+    setMode('staff');
+  }
+
+  // Restore saved pilot data
+  loadPilotData(session.code);
+}
+
+function authLogout(){
+  if(!confirm('Sign out of this pilot session? Your data will be saved.')) return;
+  sessionStorage.removeItem(SESSION_KEY);
+  PILOT_SESSION=null;
+  location.reload();
+}
+
+// ─── Namespaced storage (multi-tenant) ────────────────────
+function pilotKey(suffix){
+  return 'dcc_'+(PILOT_SESSION?PILOT_SESSION.code:'nosession')+'_'+suffix;
+}
+
+function savePilotData(){
+  if(!PILOT_SESSION) return;
+  try{
+    localStorage.setItem(pilotKey('data'), JSON.stringify({
+      residents:S.residents,
+      observations:S.observations,
+      approvedUpdates:S.approvedUpdates||{},
+      savedAt:new Date().toISOString()
+    }));
+  }catch(e){console.warn('Could not save pilot data:',e);}
+}
+
+function loadPilotData(code){
+  try{
+    const raw=localStorage.getItem('dcc_'+code+'_data');
+    if(!raw) return;
+    const data=JSON.parse(raw);
+    if(data.residents&&data.residents.length>0){
+      S.residents=data.residents;
+      S.observations=data.observations||[];
+      S.approvedUpdates=data.approvedUpdates||{};
+      populateAll();
+      toast('Your pilot session has been restored');
+    }
+  }catch(e){console.warn('Could not restore pilot data:',e);}
+}
+
+// ─── Auto-save hooks ──────────────────────────────────────
+// Patch saveObs to also persist
+const _origSaveObs=saveObs;
+function saveObs(){
+  _origSaveObs();
+  savePilotData();
+}
+
+// Patch loadSample to also persist
+const _origLoadSample=loadSample;
+function loadSample(){
+  _origLoadSample();
+  savePilotData();
+}
+
+// ─── Init: restore session if exists ─────────────────────
+(function initAuth(){
+  const s=getSession();
+  if(!s) return;
+  if(s.type!=='ADMIN'){
+    const valid=getPilotCodes().find(c=>c.code===s.code&&c.active!==false);
+    if(!valid){sessionStorage.removeItem(SESSION_KEY);return;}
+  }
+  PILOT_SESSION=s;
+  activateSession(s);
+})();
 
 </script>
 </body>
