@@ -343,6 +343,36 @@ select:focus{outline:none;border-color:var(--teal);}
 .sb-logout:hover{background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.85);}
 .sb-admin-btn{font-size:11px;color:rgba(255,255,255,0.35);cursor:pointer;padding:2px 8px;border-radius:4px;}
 .sb-admin-btn:hover{color:rgba(255,255,255,0.7);}
+
+/* ═══ IMPORT PAGE ═══ */
+.import-zone{border:2px dashed var(--teal-mid);border-radius:var(--radius-lg);padding:36px 28px;text-align:center;cursor:pointer;background:var(--teal-light);transition:all 0.2s;}
+.import-zone:hover,.import-zone.drag{border-color:var(--teal);background:#d0f0e6;}
+.import-zone-icon{font-size:32px;margin-bottom:10px;opacity:0.7;}
+.import-zone-title{font-size:14px;font-weight:600;color:var(--teal-dark);margin-bottom:4px;}
+.import-zone-sub{font-size:12px;color:var(--teal-dark);opacity:0.8;}
+.import-preview{background:var(--white);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;margin-top:14px;}
+.import-preview-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.import-preview-title{font-size:14px;font-weight:600;color:var(--text);}
+.import-field-row{display:grid;grid-template-columns:160px 1fr;gap:8px;align-items:start;margin-bottom:10px;}
+.import-field-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-muted);padding-top:10px;}
+.import-field-input{padding:8px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);width:100%;}
+.import-field-input:focus{outline:none;border-color:var(--teal);}
+.import-field-textarea{padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--white);color:var(--text);width:100%;resize:vertical;min-height:90px;line-height:1.6;}
+.import-field-textarea:focus{outline:none;border-color:var(--teal);}
+.import-notes-raw{background:var(--gray-50);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--text);line-height:1.7;white-space:pre-wrap;max-height:200px;overflow-y:auto;font-family:'Courier New',monospace;}
+.import-step{display:flex;align-items:flex-start;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);}
+.import-step:last-child{border-bottom:none;}
+.import-step-num{width:28px;height:28px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.import-step-body{flex:1;}
+.import-step-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.import-step-desc{font-size:12px;color:var(--text-muted);line-height:1.6;}
+.pref-chip{padding:6px 12px;border:1.5px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;transition:all 0.15s;background:var(--white);display:inline-flex;align-items:center;gap:5px;margin:3px;}
+.pref-chip.sel{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);font-weight:500;}
+.stage-select-row{display:flex;gap:8px;flex-wrap:wrap;}
+.stage-sel-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;cursor:pointer;background:var(--white);transition:all 0.15s;}
+.stage-sel-btn.sel{border-color:var(--teal);background:var(--teal-light);color:var(--teal-dark);font-weight:500;}
+.import-success{background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:var(--radius-lg);padding:20px;text-align:center;display:none;}
+.import-success.show{display:block;}
 </style>
 </head>
 <body>
@@ -425,6 +455,7 @@ select:focus{outline:none;border-color:var(--teal);}
       <button class="nav-tab" onclick="sPage('log',this)">Log Observation</button>
       <button class="nav-tab" onclick="sPage('updates',this)">Family Updates</button>
       <button class="nav-tab" onclick="sPage('profile',this)">Resident Profile</button>
+      <button class="nav-tab" id="import-tab" onclick="sPage('import',this)" style="color:var(--teal);font-weight:500;">⬆ Import Field Notes</button>
     </div>
   </nav>
 
@@ -601,6 +632,148 @@ select:focus{outline:none;border-color:var(--teal);}
       </div>
     </div>
   </div>
+
+  <!-- IMPORT FIELD NOTES -->
+  <div class="page" id="sp-import">
+    <div class="page-header">
+      <div>
+        <div class="section-title">Import Field Notes</div>
+        <div class="section-desc">Add a resident and their family's visit observations — takes about 3 minutes</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="align-items:start;gap:16px;">
+
+      <!-- LEFT: Resident setup -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">1 — Resident identity</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div><label>First name</label><input class="import-field-input" id="imp-fname" placeholder="e.g. Margaret"></div>
+            <div><label>Last name</label><input class="import-field-input" id="imp-lname" placeholder="e.g. Hoffman"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+            <div><label>Age</label><input class="import-field-input" id="imp-age" type="number" placeholder="82"></div>
+            <div><label>Room / Location</label><input class="import-field-input" id="imp-room" placeholder="114A or Home"></div>
+          </div>
+          <div style="margin-bottom:10px;"><label>Diagnosis type</label>
+            <select class="import-field-input" id="imp-type" style="width:100%;">
+              <option value="">Select...</option>
+              <option value="Alzheimer's Disease">Alzheimer's Disease</option>
+              <option value="Vascular Dementia">Vascular Dementia</option>
+              <option value="Lewy Body Dementia">Lewy Body Dementia</option>
+              <option value="Frontotemporal Dementia">Frontotemporal Dementia</option>
+              <option value="Mixed Dementia">Mixed Dementia</option>
+              <option value="Other / Unknown">Other / Unknown</option>
+            </select>
+          </div>
+          <div><label>Stage</label>
+            <div class="stage-select-row" id="imp-stage-row">
+              <button class="stage-sel-btn" onclick="selImpStage(this,0)">Early</button>
+              <button class="stage-sel-btn" onclick="selImpStage(this,1)">Mild</button>
+              <button class="stage-sel-btn" onclick="selImpStage(this,2)">Moderate</button>
+              <button class="stage-sel-btn" onclick="selImpStage(this,3)">Advanced</button>
+              <button class="stage-sel-btn" onclick="selImpStage(this,4)">Late Stage</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:14px;">2 — Family contact</div>
+          <div style="margin-bottom:10px;"><label>Family member name(s)</label><input class="import-field-input" id="imp-contact" placeholder="e.g. David and Linda Hoffman"></div>
+          <div style="margin-bottom:10px;"><label>Relationship</label><input class="import-field-input" id="imp-relationship" placeholder="e.g. Son and daughter-in-law"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:6px;">3 — Life story & preferences</div>
+          <div class="card-sub" style="margin-bottom:12px;">This feeds the AI — the more you share, the more personal the updates</div>
+          <div style="margin-bottom:10px;"><label>Life story (work, hobbies, family, identity)</label>
+            <textarea class="import-field-textarea" id="imp-bio" placeholder="e.g. Retired schoolteacher from Denver. Loved roses and gardening. Taught 3rd grade for 32 years. Married to Robert for 54 years. Devout Methodist."></textarea>
+          </div>
+          <div><label>Known preferences & comforts</label>
+            <div id="imp-prefs-chips" style="margin-bottom:8px;">
+              <span class="pref-chip" onclick="togImpPref(this)">Music from their era</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Family photos</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Gardening / nature</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Religious practice</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Cooking smells</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Animals / pets</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Sports / news</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Quiet / low stimulation</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Storytelling</span>
+              <span class="pref-chip" onclick="togImpPref(this)">Handholding / touch</span>
+            </div>
+            <input class="import-field-input" id="imp-prefs-other" placeholder="Add anything else (optional)">
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Field notes -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:4px;">4 — Field notes</div>
+          <div class="card-sub" style="margin-bottom:14px;">Paste, type, or upload what the family has shared — visit observations, phone call notes, emails, anything</div>
+
+          <div class="input-tabs" style="margin-bottom:14px;">
+            <button class="input-tab active" onclick="showImpTab('paste',this)">Paste / Type</button>
+            <button class="input-tab" onclick="showImpTab('upload',this)">Upload File</button>
+          </div>
+
+          <div id="imptab-paste">
+            <label>Family field notes</label>
+            <textarea class="import-field-textarea" id="imp-notes" style="min-height:200px;" placeholder="Paste anything here — visit notes, texts from family, email summaries, voice memo transcripts, or your own handwritten notes typed up.
+
+Examples:
+— 'Mom recognized me when I came in Tuesday. She kept asking about the garden.'
+— 'Dad was agitated most of the visit but calmed down when we played Sinatra.'
+— 'She didn't eat much. Seemed tired. Held my hand the whole time though.'
+
+No format required. Write naturally."></textarea>
+          </div>
+
+          <div id="imptab-upload" style="display:none;">
+            <div class="import-zone" id="imp-drop-zone"
+              onclick="document.getElementById('imp-file-input').click()"
+              ondragover="event.preventDefault();this.classList.add('drag')"
+              ondragleave="this.classList.remove('drag')"
+              ondrop="handleImpDrop(event)">
+              <div class="import-zone-icon">📋</div>
+              <div class="import-zone-title">Drop a file or click to browse</div>
+              <div class="import-zone-sub">Accepts .txt, .pdf, .docx — or paste text directly in the other tab</div>
+            </div>
+            <input type="file" id="imp-file-input" accept=".txt,.pdf,.docx,.doc" style="display:none;" onchange="handleImpFile(event)">
+            <div id="imp-file-info" style="display:none;background:var(--white);border:1px solid var(--teal-mid);border-radius:8px;padding:10px 14px;margin-top:10px;display:none;align-items:center;gap:10px;">
+              <span style="font-size:18px;">📄</span>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:500;" id="imp-file-name">—</div><div style="font-size:11px;color:var(--text-muted);" id="imp-file-size">—</div></div>
+              <button onclick="clearImpFile()" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--text-muted);">✕</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title" style="margin-bottom:6px;">5 — Additional care context <span style="font-size:11px;font-weight:400;color:var(--text-muted);">(optional)</span></div>
+          <div class="card-sub" style="margin-bottom:12px;">Anything the care team or you have observed — patterns, challenges, what works</div>
+          <textarea class="import-field-textarea" id="imp-care-context" placeholder="e.g. Sundowning starts around 4pm. Responds well to music. Refuses baths on Tuesdays. Physician flagged weight loss."></textarea>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="submitImport()">Add Resident & Notes</button>
+          <button class="btn btn-outline" onclick="clearImport()">Clear</button>
+        </div>
+        <div class="import-success" id="import-success">
+          <div style="font-size:22px;margin-bottom:8px;">✅</div>
+          <div style="font-size:15px;font-weight:600;color:var(--teal-dark);margin-bottom:4px;" id="import-success-name">Resident added</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-bottom:12px;">Field notes saved. You can now generate a family update from the Family Updates tab.</div>
+          <button class="btn btn-primary" onclick="goToUpdates()">Generate Family Update →</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 </div><!-- /staff -->
 
 <!-- ═══ FAMILY APP ═══ -->
@@ -1019,11 +1192,10 @@ function activateSession(session){
     document.querySelector('.mode-bar').style.display='none';
     setMode('family');
   } else {
-    // FAC or ADMIN get full staff view
     setMode('staff');
   }
 
-  // Restore saved pilot data
+  // Restore saved pilot data (also seeds DEMO data and auto-selects resident)
   loadPilotData(session.code);
 }
 
@@ -1054,16 +1226,37 @@ function savePilotData(){
 function loadPilotData(code){
   try{
     const raw=localStorage.getItem('dcc_'+code+'_data');
-    if(!raw) return;
-    const data=JSON.parse(raw);
-    if(data.residents&&data.residents.length>0){
-      S.residents=data.residents;
-      S.observations=data.observations||[];
-      S.approvedUpdates=data.approvedUpdates||{};
-      populateAll();
-      toast('Your pilot session has been restored');
+    if(raw){
+      const data=JSON.parse(raw);
+      if(data.residents&&data.residents.length>0){
+        S.residents=data.residents;
+        S.observations=data.observations||[];
+        S.approvedUpdates=data.approvedUpdates||{};
+        populateAll();
+        autoSelectFamilyRes();
+        toast('Your pilot session has been restored');
+        return;
+      }
+    }
+    // Auto-seed sample data for DEMO codes
+    if(code==='FAM-DEMO'||code==='FAC-DEMO'){
+      loadSample();
+      autoSelectFamilyRes();
     }
   }catch(e){console.warn('Could not restore pilot data:',e);}
+}
+
+function autoSelectFamilyRes(){
+  if(!PILOT_SESSION||PILOT_SESSION.type!=='FAM'||!S.residents.length) return;
+  const sel=document.getElementById('fam-res-mode');
+  if(!sel||sel.value) return;
+  const firstId=S.residents[0].id;
+  sel.value=firstId;
+  const r=S.residents.find(x=>x.id===firstId);
+  if(r){
+    const upd=(S.preloadedUpdates&&S.preloadedUpdates[firstId])||(S.approvedUpdates&&S.approvedUpdates[firstId])||null;
+    renderFamilyView(r,upd);
+  }
 }
 
 // ─── Auto-save hooks ──────────────────────────────────────
@@ -1092,6 +1285,186 @@ function loadSample(){
   PILOT_SESSION=s;
   activateSession(s);
 })();
+
+
+// ═══════════════════════════════════════════════════════════
+// IMPORT FIELD NOTES — JS
+// ═══════════════════════════════════════════════════════════
+
+let _impStageIdx = -1;
+let _impFileText = null;
+
+function selImpStage(el, idx){
+  document.querySelectorAll('.stage-sel-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  _impStageIdx = idx;
+}
+
+function togImpPref(el){ el.classList.toggle('sel'); }
+
+function showImpTab(name, el){
+  document.getElementById('imptab-paste').style.display = name==='paste'?'block':'none';
+  document.getElementById('imptab-upload').style.display = name==='upload'?'block':'none';
+  document.querySelectorAll('#sp-import .input-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleImpDrop(e){
+  e.preventDefault();
+  document.getElementById('imp-drop-zone').classList.remove('drag');
+  const file = e.dataTransfer.files[0];
+  if(file) readImpFile(file);
+}
+
+function handleImpFile(e){
+  const file = e.target.files[0];
+  if(file) readImpFile(file);
+}
+
+function readImpFile(file){
+  document.getElementById('imp-file-name').textContent = file.name;
+  document.getElementById('imp-file-size').textContent = (file.size/1024).toFixed(1) + ' KB';
+  const fi = document.getElementById('imp-file-info');
+  fi.style.display='flex';
+  const reader = new FileReader();
+  reader.onload = function(e){
+    _impFileText = e.target.result;
+    toast('File loaded — ' + file.name);
+  };
+  if(file.name.endsWith('.pdf')){
+    // For PDFs, just store the name and let the user know text extraction is limited
+    _impFileText = '[PDF: ' + file.name + ' — if text extraction fails, paste notes in the Paste tab]';
+    reader.readAsText(file); // best effort
+  } else {
+    reader.readAsText(file);
+  }
+}
+
+function clearImpFile(){
+  _impFileText = null;
+  document.getElementById('imp-file-info').style.display='none';
+  document.getElementById('imp-file-input').value='';
+}
+
+function getImpNotes(){
+  // Prefer paste tab content, fall back to file
+  const pasted = document.getElementById('imp-notes').value.trim();
+  if(pasted) return pasted;
+  return _impFileText || '';
+}
+
+function getSelectedPrefs(){
+  const chips = document.querySelectorAll('#imp-prefs-chips .pref-chip.sel');
+  const prefs = Array.from(chips).map(c=>c.textContent.trim());
+  const other = document.getElementById('imp-prefs-other').value.trim();
+  if(other) prefs.push(other);
+  return prefs;
+}
+
+const STAGE_NAMES = ['Early','Mild','Moderate','Advanced','Late Stage'];
+const AV_CLASSES = ['av-teal','av-blue','av-amber','av-coral','av-teal'];
+
+function submitImport(){
+  const fname = document.getElementById('imp-fname').value.trim();
+  const lname = document.getElementById('imp-lname').value.trim();
+  const age   = parseInt(document.getElementById('imp-age').value)||'—';
+  const room  = document.getElementById('imp-room').value.trim()||'—';
+  const type  = document.getElementById('imp-type').value||'Alzheimer\'s Disease';
+  const contact = document.getElementById('imp-contact').value.trim();
+  const relationship = document.getElementById('imp-relationship').value.trim();
+  const bio   = document.getElementById('imp-bio').value.trim();
+  const notes = getImpNotes();
+  const careCtx = document.getElementById('imp-care-context').value.trim();
+  const prefs = getSelectedPrefs();
+
+  if(!fname||!lname){ toast('Please enter the resident\'s first and last name'); return; }
+  if(!contact){ toast('Please enter a family contact name'); return; }
+  if(_impStageIdx < 0){ toast('Please select a stage'); return; }
+  if(!notes){ toast('Please add at least some field notes in the Paste tab or upload a file'); return; }
+
+  const id = Date.now(); // unique numeric id
+  const initials = (fname[0]+(lname[0]||'')).toUpperCase();
+  const avIdx = S.residents.length % AV_CLASSES.length;
+  const stage = STAGE_NAMES[_impStageIdx];
+  const stageDesc = {
+    'Early':'Early-stage dementia — meaningful communication is still possible; routines and familiar environments are key anchors.',
+    'Mild':'Mid-stage dementia — memory gaps are more frequent but emotional connections remain strong.',
+    'Moderate':'Moderate-stage dementia — long-term memories and emotional responses remain; sensory approaches work best.',
+    'Advanced':'Advanced-stage dementia — verbal communication has faded but presence, touch, and familiar sound still reach them.',
+    'Late Stage':'Late-stage dementia — comfort, dignity, and loving presence are the primary goals of every interaction.'
+  }[stage]||'';
+
+  const contactFull = contact + (relationship ? ' (' + relationship + ')' : '');
+
+  const newResident = {
+    id, name: fname+' '+lname, initials,
+    av: AV_CLASSES[avIdx], age, room,
+    type, stage, stageIdx: _impStageIdx, stageDesc,
+    contact: contactFull,
+    physician: '—', admitted: new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}),
+    bio: bio || 'Life story not yet entered.',
+    care: careCtx || 'Care notes not yet entered.',
+    prefs: prefs.length ? prefs : ['Familiar routines','Family presence'],
+    updateOverdue: true,
+    riskFlags: []
+  };
+
+  S.residents.push(newResident);
+
+  // Save field notes as an observation
+  if(notes){
+    const obs = {
+      id, shift:'Family Field Notes',
+      date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+      pos:[], neg:[], sev:'Mild',
+      notes: notes.substring(0,2000),
+      source:'family-import'
+    };
+    S.observations.push(obs);
+  }
+
+  populateAll();
+  savePilotData();
+
+  // Show success
+  const successEl = document.getElementById('import-success');
+  successEl.classList.add('show');
+  document.getElementById('import-success-name').textContent = fname + ' ' + lname + ' added successfully';
+
+  // Pre-select this resident in update dropdown
+  S._lastImportedId = id;
+
+  toast(fname + ' added — go to Family Updates to generate their first update');
+}
+
+function goToUpdates(){
+  // Navigate to updates tab and pre-select the just-imported resident
+  const tabs = document.querySelectorAll('.nav-tab');
+  tabs.forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('sp-updates').classList.add('active');
+  // Find the updates tab button
+  const updTab = Array.from(tabs).find(t=>t.getAttribute('onclick')&&t.getAttribute('onclick').includes('updates'));
+  if(updTab) updTab.classList.add('active');
+  // Pre-select resident
+  if(S._lastImportedId){
+    const sel = document.getElementById('upd-res');
+    sel.value = S._lastImportedId;
+    changeUpdRes();
+  }
+}
+
+function clearImport(){
+  ['imp-fname','imp-lname','imp-age','imp-room','imp-contact','imp-relationship','imp-bio','imp-notes','imp-care-context','imp-prefs-other'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value='';
+  });
+  document.querySelectorAll('#imp-prefs-chips .pref-chip').forEach(c=>c.classList.remove('sel'));
+  document.querySelectorAll('.stage-sel-btn').forEach(b=>b.classList.remove('sel'));
+  _impStageIdx=-1; _impFileText=null;
+  clearImpFile();
+  document.getElementById('import-success').classList.remove('show');
+}
 
 </script>
 </body>
