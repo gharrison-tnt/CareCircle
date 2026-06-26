@@ -944,7 +944,15 @@ function renderUpdOutput(r,d){
   document.getElementById('upd-name').textContent=r.name;document.getElementById('upd-detail').textContent=r.type+' · '+r.stage+' Stage · Room '+r.room;
   document.getElementById('upd-period').textContent='Week of '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
   document.getElementById('upd-stage-info').innerHTML=`<div style="font-size:11px;color:var(--text-muted);margin-bottom:4px;">Current Stage</div><div style="font-size:14px;font-weight:600;margin-bottom:3px;">${r.stage} — ${r.type}</div><div style="font-size:11px;color:var(--text-muted);">Contact: ${r.contact}</div>`;
-  if(!d){document.getElementById('itab-narrative').innerHTML='<div style="color:var(--coral);padding:12px;font-size:13px;"><strong>Tip for demo:</strong> Click "Load Sample Data" — sample updates are fully pre-loaded and do not require an API connection.</div>';return;}
+  if(!d){
+    const isImported=r.id&&typeof r.id==='number'&&r.id>1000000000;
+    if(isImported){
+      document.getElementById('itab-narrative').innerHTML='<div style="color:var(--teal-dark);padding:16px;font-size:13px;background:var(--teal-light);border-radius:8px;line-height:1.6;"><strong>Ready to generate.</strong> Field notes for '+r.name.split(' ')[0]+' have been imported. Click <strong>Generate Update</strong> above to create their personalized family update.</div>';
+    } else {
+      document.getElementById('itab-narrative').innerHTML='<div style="color:var(--text-muted);padding:12px;font-size:13px;">Select a resident and click Generate Update.</div>';
+    }
+    return;
+  }
   // Narrative tab
   document.getElementById('itab-narrative').innerHTML=`
     <div style="font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:14px;">${d.greeting||''}</div>
