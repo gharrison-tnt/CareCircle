@@ -377,63 +377,6 @@ select:focus{outline:none;border-color:var(--teal);}
 </head>
 <body>
 
-<!-- ═══ AUTH GATE ═══ -->
-<div id="auth-gate">
-  <div class="auth-box">
-    <div class="auth-logo"><div class="auth-logo-dot"></div><div class="auth-logo-text">Care Companion</div></div>
-    <div class="auth-tagline" style="margin-bottom:4px;">Pilot Program — Private Access</div>
-    <div style="font-size:12px;color:var(--text-muted);margin-bottom:24px;">Enter the access code you received from the Memory Care Project team.</div>
-    <label class="auth-label">Access Code</label>
-    <input class="auth-input" id="auth-input" type="text" maxlength="9" placeholder="FAM-XXXX" oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9-]/g,'')" onkeydown="if(event.key==='Enter')authSubmit()">
-    <button class="auth-btn" onclick="authSubmit()">Enter Pilot</button>
-    <div class="auth-err" id="auth-err">That code isn't recognized. Check the code you received and try again.</div>
-    <div class="auth-info" style="margin-top:16px;">🔒 Your data is private to your access code. No other participants can see your entries.</div>
-    <div class="auth-footer">Need help? <a href="mailto:consultwithatwist@gmail.com" style="color:var(--teal-dark);">consultwithatwist@gmail.com</a></div>
-  </div>
-</div>
-
-<!-- ═══ SESSION BANNER ═══ -->
-<div class="session-banner" id="session-banner">
-  <span class="sb-code" id="sb-code-pill"></span>
-  <span class="sb-role" id="sb-role-text"></span>
-  <span class="sb-admin-btn" id="sb-admin-btn" style="display:none;" onclick="showAdmin()">⚙ Admin</span>
-  <span class="sb-logout" onclick="authLogout()">Sign out</span>
-</div>
-
-<!-- ═══ ADMIN PANEL ═══ -->
-<div id="admin-panel">
-  <div class="admin-box">
-    <div class="admin-hdr">
-      <div class="admin-title">⚙ Pilot Admin — Memory Care Project</div>
-      <button class="admin-close" onclick="hideAdmin()">✕ Close</button>
-    </div>
-    <div class="stat-row" id="admin-stats"></div>
-    <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Generate New Pilot Code</div>
-    <div class="gen-row">
-      <button class="gen-b gen-fam" onclick="generateCode('FAM')">+ Family Pilot Code</button>
-      <button class="gen-b gen-fac" onclick="generateCode('FAC')">+ Facility Pilot Code</button>
-    </div>
-    <div id="gen-result" style="margin-bottom:20px;display:none;">
-      <div style="background:var(--teal-light);border:1px solid var(--teal-mid);border-radius:8px;padding:12px 14px;font-size:13px;">
-        <strong>New code generated:</strong>
-        <span class="cp" id="gen-result-code"></span>
-        <button class="cpill" onclick="copyLastCode()">Copy</button>
-        <div style="font-size:11px;color:var(--text-muted);margin-top:5px;">Share this code with the pilot participant. Active immediately.</div>
-      </div>
-    </div>
-    <div style="font-size:14px;font-weight:600;margin-bottom:10px;">Active Pilot Codes</div>
-    <table class="pilot-table">
-      <thead><tr><th>Code</th><th>Type</th><th>Label / Notes</th><th>Created</th><th>Last Used</th><th></th></tr></thead>
-      <tbody id="admin-tbody"></tbody>
-    </table>
-    <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--border);font-size:11px;color:var(--text-muted);">
-      Codes stored in this browser's localStorage.
-      <button class="cpill" onclick="exportCodes()">Export JSON</button>
-      <button class="cpill" onclick="importCodesPrompt()">Import JSON</button>
-    </div>
-  </div>
-</div>
-
 <div class="mode-bar">
   <span class="mode-label">View as</span>
   <div class="mode-toggle">
@@ -922,7 +865,7 @@ function clearLog(){document.querySelectorAll('#sp-log .chip.sel').forEach(c=>c.
 
 function changeUpdRes(){const id=document.getElementById('upd-res').value;document.getElementById('gen-btn').disabled=!id;document.getElementById('upd-empty').style.display=id?'none':'block';document.getElementById('upd-area').style.display=id?'block':'none';document.getElementById('upd-loading').style.display='none';document.getElementById('upd-output').style.display='none';S.updRes=id?parseInt(id):null;}
 
-async async function genUpdate(){
+async function genUpdate(){
   const r=S.residents.find(x=>x.id===S.updRes);if(!r)return;
   const preloaded=S.preloadedUpdates&&S.preloadedUpdates[r.id];
   if(preloaded){S.familyRes=r;S.currentUpdate=preloaded;renderUpdOutput(r,preloaded);return;}
@@ -1049,181 +992,15 @@ document.getElementById('dash-date').textContent=new Date().toLocaleDateString('
 
 
 // ═══════════════════════════════════════════════════════════
-// PILOT AUTH + MULTI-TENANT ISOLATION — Memory Care Project
+// LOCAL PERSISTENCE — no login/access code required
 // ═══════════════════════════════════════════════════════════
 
-const ADMIN_CODE = 'ADMIN-MCP';
-const CODES_KEY  = 'dcc_pilot_codes';
-const SESSION_KEY = 'dcc_session';
-
-// ─── Code registry helpers ─────────────────────────────────
-function getPilotCodes(){try{return JSON.parse(localStorage.getItem(CODES_KEY)||'[]');}catch(e){return[];}}
-function savePilotCodes(c){localStorage.setItem(CODES_KEY,JSON.stringify(c));}
-
-// Seed two demo codes on first ever load
-(function seedDefaults(){
-  if(getPilotCodes().length===0){
-    savePilotCodes([
-      {code:'FAM-DEMO',type:'FAM',label:'Demo — family pilot',created:new Date().toISOString(),lastUsed:null,active:true},
-      {code:'FAC-DEMO',type:'FAC',label:'Demo — facility pilot',created:new Date().toISOString(),lastUsed:null,active:true}
-    ]);
-  }
-})();
-
-// ─── Admin UI ─────────────────────────────────────────────
-let _lastGenCode = null;
-
-function generateCode(type){
-  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let rand='';for(let i=0;i<4;i++)rand+=chars[Math.floor(Math.random()*chars.length)];
-  const code=type+'-'+rand;
-  const codes=getPilotCodes();
-  codes.push({code,type,label:'',created:new Date().toISOString(),lastUsed:null,active:true});
-  savePilotCodes(codes);
-  _lastGenCode=code;
-  const el=document.getElementById('gen-result-code');
-  el.textContent=code; el.className='cp cp-'+type.toLowerCase();
-  document.getElementById('gen-result').style.display='block';
-  renderAdminTable(); renderAdminStats();
-}
-
-function copyLastCode(){
-  if(_lastGenCode) navigator.clipboard.writeText(_lastGenCode).then(()=>toast('Code copied'));
-}
-
-function exportCodes(){
-  const blob=new Blob([JSON.stringify(getPilotCodes(),null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download='dcc-pilot-codes.json'; a.click();
-}
-
-function importCodesPrompt(){
-  const raw=prompt('Paste exported JSON codes array:');
-  if(!raw) return;
-  try{
-    const imported=JSON.parse(raw);
-    if(!Array.isArray(imported)) throw new Error();
-    const existing=getPilotCodes();
-    const set=new Set(existing.map(c=>c.code));
-    savePilotCodes([...existing,...imported.filter(c=>!set.has(c.code))]);
-    renderAdminTable(); renderAdminStats(); toast('Codes imported');
-  }catch(e){alert('Invalid JSON.');}
-}
-
-function renderAdminStats(){
-  const c=getPilotCodes();
-  document.getElementById('admin-stats').innerHTML=
-    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.type==='FAM'&&x.active).length}</div><div class="stat-lbl">Family Pilots</div></div>`+
-    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.type==='FAC'&&x.active).length}</div><div class="stat-lbl">Facility Pilots</div></div>`+
-    `<div class="stat-box"><div class="stat-num">${c.filter(x=>x.lastUsed).length}</div><div class="stat-lbl">Ever Used</div></div>`+
-    `<div class="stat-box"><div class="stat-num">${c.length}</div><div class="stat-lbl">Total Codes</div></div>`;
-}
-
-function renderAdminTable(){
-  const codes=getPilotCodes();
-  const tbody=document.getElementById('admin-tbody');
-  if(!codes.length){tbody.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">No codes yet.</td></tr>';return;}
-  tbody.innerHTML=codes.map((c,i)=>{
-    const created=c.created?new Date(c.created).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'2-digit'}):'—';
-    const used=c.lastUsed?new Date(c.lastUsed).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'Never';
-    const hasData=!!localStorage.getItem('dcc_'+c.code+'_data');
-    const typeClass=c.type==='FAM'?'pbadge-fam':'pbadge-fac';
-    const inactive=!c.active?'style="opacity:0.45;"':'';
-    return `<tr ${inactive}>
-      <td><span class="cp cp-${c.type.toLowerCase()}">${c.code}</span><button class="cpill" onclick="navigator.clipboard.writeText('${c.code}').then(()=>toast('Copied'))">Copy</button></td>
-      <td><span class="pbadge ${typeClass}">${c.type==='FAM'?'Family':'Facility'}</span></td>
-      <td><input class="note-inp" value="${c.label||''}" placeholder="Label / notes..." onchange="updateCodeLabel(${i},this.value)"></td>
-      <td style="color:var(--text-muted);font-size:12px;">${created}</td>
-      <td style="font-size:12px;color:${c.lastUsed?'var(--teal-dark)':'var(--text-muted)'};">${used}${hasData?' <span style="font-size:9px;color:var(--teal);">●data</span>':''}</td>
-      <td>${c.active?`<button onclick="revokeCode(${i})" style="font-size:11px;color:var(--red);background:none;border:none;cursor:pointer;">Revoke</button>`:`<span style="font-size:11px;color:var(--text-muted);">Revoked</span>`}</td>
-    </tr>`;
-  }).join('');
-}
-
-function updateCodeLabel(i,val){const c=getPilotCodes();if(c[i]){c[i].label=val;savePilotCodes(c);}}
-
-function revokeCode(i){
-  if(!confirm('Revoke this code? The participant will lose access, but their data is preserved.')) return;
-  const c=getPilotCodes(); if(c[i]){c[i].active=false;savePilotCodes(c);}
-  renderAdminTable(); renderAdminStats(); toast('Code revoked');
-}
-
-function showAdmin(){renderAdminStats();renderAdminTable();document.getElementById('admin-panel').classList.add('show');}
-function hideAdmin(){document.getElementById('admin-panel').classList.remove('show');}
-
-// ─── Session management ────────────────────────────────────
-let PILOT_SESSION=null;
-
-function getSession(){try{return JSON.parse(sessionStorage.getItem(SESSION_KEY));}catch(e){return null;}}
-function saveSession(s){sessionStorage.setItem(SESSION_KEY,JSON.stringify(s));}
-
-function authSubmit(){
-  const raw=document.getElementById('auth-input').value.trim().toUpperCase();
-  const errEl=document.getElementById('auth-err');
-  errEl.classList.remove('show');
-
-  if(raw===ADMIN_CODE){
-    const s={code:raw,type:'ADMIN'};
-    PILOT_SESSION=s; saveSession(s); activateSession(s); return;
-  }
-
-  const codes=getPilotCodes();
-  const match=codes.find(c=>c.code===raw&&c.active!==false);
-  if(!match){
-    errEl.classList.add('show');
-    const inp=document.getElementById('auth-input');
-    inp.style.borderColor='var(--red)';
-    setTimeout(()=>{inp.style.borderColor='';},1600);
-    return;
-  }
-
-  match.lastUsed=new Date().toISOString();
-  savePilotCodes(codes);
-  const s={code:match.code,type:match.type};
-  PILOT_SESSION=s; saveSession(s); activateSession(s);
-}
-
-function activateSession(session){
-  document.getElementById('auth-gate').style.display='none';
-  const banner=document.getElementById('session-banner');
-  banner.classList.add('show');
-
-  const pill=document.getElementById('sb-code-pill');
-  pill.textContent=session.code;
-  pill.className='sb-code sb-'+session.type.toLowerCase();
-
-  document.getElementById('sb-role-text').textContent={FAM:'Family Pilot',FAC:'Facility Pilot',ADMIN:'Admin ★'}[session.type]||session.type;
-
-  if(session.type==='ADMIN'){
-    document.getElementById('sb-admin-btn').style.display='inline';
-  }
-
-  // Lock into appropriate view
-  if(session.type==='FAM'){
-    document.querySelector('.mode-bar').style.display='none';
-    setMode('family');
-  } else {
-    setMode('staff');
-  }
-
-  // Restore saved pilot data (also seeds DEMO data and auto-selects resident)
-  loadPilotData(session.code);
-}
-
-function authLogout(){
-  if(!confirm('Sign out of this pilot session? Your data will be saved.')) return;
-  sessionStorage.removeItem(SESSION_KEY);
-  PILOT_SESSION=null;
-  location.reload();
-}
-
-// ─── Namespaced storage (multi-tenant) ────────────────────
+// ─── Namespaced storage (single-tenant, this browser only) ────
 function pilotKey(suffix){
-  return 'dcc_'+(PILOT_SESSION?PILOT_SESSION.code:'nosession')+'_'+suffix;
+  return 'dcc_local_'+suffix;
 }
 
 function savePilotData(){
-  if(!PILOT_SESSION) return;
   try{
     localStorage.setItem(pilotKey('data'), JSON.stringify({
       residents:S.residents,
@@ -1231,12 +1008,12 @@ function savePilotData(){
       approvedUpdates:S.approvedUpdates||{},
       savedAt:new Date().toISOString()
     }));
-  }catch(e){console.warn('Could not save pilot data:',e);}
+  }catch(e){console.warn('Could not save data:',e);}
 }
 
-function loadPilotData(code){
+function loadPilotData(){
   try{
-    const raw=localStorage.getItem('dcc_'+code+'_data');
+    const raw=localStorage.getItem(pilotKey('data'));
     if(raw){
       const data=JSON.parse(raw);
       if(data.residents&&data.residents.length>0){
@@ -1245,20 +1022,14 @@ function loadPilotData(code){
         S.approvedUpdates=data.approvedUpdates||{};
         populateAll();
         autoSelectFamilyRes();
-        toast('Your pilot session has been restored');
         return;
       }
     }
-    // Auto-seed sample data for DEMO codes
-    if(code==='FAM-DEMO'||code==='FAC-DEMO'){
-      loadSample();
-      autoSelectFamilyRes();
-    }
-  }catch(e){console.warn('Could not restore pilot data:',e);}
+  }catch(e){console.warn('Could not restore data:',e);}
 }
 
 function autoSelectFamilyRes(){
-  if(!PILOT_SESSION||PILOT_SESSION.type!=='FAM'||!S.residents.length) return;
+  if(!S.residents.length) return;
   const sel=document.getElementById('fam-res-mode');
   if(!sel||sel.value) return;
   const firstId=S.residents[0].id;
@@ -1285,16 +1056,9 @@ function loadSample(){
   savePilotData();
 }
 
-// ─── Init: restore session if exists ─────────────────────
-(function initAuth(){
-  const s=getSession();
-  if(!s) return;
-  if(s.type!=='ADMIN'){
-    const valid=getPilotCodes().find(c=>c.code===s.code&&c.active!==false);
-    if(!valid){sessionStorage.removeItem(SESSION_KEY);return;}
-  }
-  PILOT_SESSION=s;
-  activateSession(s);
+// ─── Init: restore any previously saved local data ─────────
+(function initApp(){
+  loadPilotData();
 })();
 
 
