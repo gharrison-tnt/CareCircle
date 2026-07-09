@@ -803,7 +803,7 @@ const SAMPLE_UPDATES={
 
 const S={residents:[],observations:[],shift:null,severity:null,updRes:null,currentUpdate:null,familyRes:null,uploadedText:null,preloadedUpdates:null};
 
-function loadSample(){
+function loadSampleData(){
   S.residents=[
     {id:1,name:"Margaret Elaine Hoffman",initials:"MH",av:"av-teal",age:82,room:"114A",type:"Alzheimer's Disease",stage:"Moderate",stageIdx:2,admitted:"March 2023",contact:"David Hoffman (Son)",physician:"Dr. Patricia Nguyen",bio:"Margaret spent 35 years as a third-grade schoolteacher. Known for patience and creative lessons involving music and art. Raised three children with her late husband Robert. An avid gardener — her rose collection was famous on the block. Played piano for her church choir for 20 years.",prefs:["Classical music","Roses & gardening","Reading poetry","Tea with honey","Photo albums","Gentle hand massage"],care:"Responds to music from the 1960s–70s. Sundowning typically around 4pm. Prefers female caregivers for personal care. Recognizes son David and daughter Linda consistently.",stageDesc:"At the moderate stage of Alzheimer's, Margaret's experience is shaped by familiar faces, routines, and sensory anchors. Memory for recent events is significantly affected while long-term memories and emotional responses remain active. This is completely expected at her stage of the journey.",riskFlags:[{level:'amber',label:'Appetite Decline',detail:'Dinner intake down 15% over two weeks — dietitian review recommended',action:'Review nutrition'}],lastUpdate:'2 days ago',updateOverdue:false},
     {id:2,name:"Harold James Kowalski",initials:"HK",av:"av-blue",age:77,room:"108B",type:"Lewy Body Dementia",stage:"Mild",stageIdx:1,admitted:"September 2024",contact:"Susan Kowalski (Wife)",physician:"Dr. Michael Torres",bio:"Harold worked 30 years as a mechanical engineer in aerospace. He and Susan have been married 54 years. Coached youth baseball for a decade, passionate Rockies fan, proud U.S. Air Force veteran.",prefs:["Baseball (Rockies)","Woodworking magazines","Polish food","Military documentaries","Morning walks","Coffee — black"],care:"LBD: monitor medication sensitivities. Visual hallucinations — redirect gently, never contradict. REM sleep behavior disorder — bed rails in place. Most alert mid-morning.",stageDesc:"At the mild stage of Lewy Body Dementia, Harold's core personality and many abilities remain intact. The fluctuating nature of LBD means good days and harder days — this is characteristic of the diagnosis, not deterioration.",riskFlags:[{level:'red',label:'Physician Flag',detail:'Evening hallucinations increased: 3 episodes this week vs. 1 last week — medication timing review needed',action:'Flag for Dr. Torres'}],lastUpdate:'Today',updateOverdue:false},
@@ -860,7 +860,7 @@ function selSev(el,v){document.querySelectorAll('.sev-btn').forEach(b=>b.classLi
 function togChip(el){el.classList.toggle('sel');}
 function handleFileSelect(e){const f=e.target.files[0];if(!f)return;S.uploadedText='[Uploaded: '+f.name+']';document.getElementById('upload-filename').textContent=f.name;document.getElementById('upload-size').textContent=(f.size/1024).toFixed(1)+' KB';document.getElementById('upload-file-info').classList.add('vis');if(f.type==='text/plain'){const r=new FileReader();r.onload=ev=>{S.uploadedText=ev.target.result;};r.readAsText(f);}toast('File ready: '+f.name);}
 function clearUpload(){S.uploadedText=null;const fi=document.getElementById('upload-file-info');if(fi)fi.classList.remove('vis');const inp=document.getElementById('file-input');if(inp)inp.value='';}
-function saveObs(){const id=parseInt(document.getElementById('log-res').value);if(!id){toast('Please select a resident first');return;}const pos=[...document.querySelectorAll('#sp-log .chip:not(.neg).sel')].map(c=>c.textContent);const neg=[...document.querySelectorAll('#sp-log .chip.neg.sel')].map(c=>c.textContent);const notes=[document.getElementById('paste-notes').value,document.getElementById('log-notes').value,S.uploadedText||''].filter(Boolean).join('\n\n')||'Observation logged';S.observations.unshift({id,date:'Just now',shift:S.shift||'Unspecified',pos,neg,sev:S.severity||'Mild',notes});const ok=document.getElementById('log-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',3000);populateAll();clearLog();}
+function saveObsData(){const id=parseInt(document.getElementById('log-res').value);if(!id){toast('Please select a resident first');return;}const pos=[...document.querySelectorAll('#sp-log .chip:not(.neg).sel')].map(c=>c.textContent);const neg=[...document.querySelectorAll('#sp-log .chip.neg.sel')].map(c=>c.textContent);const notes=[document.getElementById('paste-notes').value,document.getElementById('log-notes').value,S.uploadedText||''].filter(Boolean).join('\n\n')||'Observation logged';S.observations.unshift({id,date:'Just now',shift:S.shift||'Unspecified',pos,neg,sev:S.severity||'Mild',notes});const ok=document.getElementById('log-ok');ok.style.display='block';setTimeout(()=>ok.style.display='none',3000);populateAll();clearLog();}
 function clearLog(){document.querySelectorAll('#sp-log .chip.sel').forEach(c=>c.classList.remove('sel'));document.querySelectorAll('.sev-btn.sel,.shift-btn.sel').forEach(b=>b.classList.remove('sel'));document.getElementById('log-notes').value='';document.getElementById('paste-notes').value='';clearUpload();S.shift=null;S.severity=null;}
 
 function changeUpdRes(){const id=document.getElementById('upd-res').value;document.getElementById('gen-btn').disabled=!id;document.getElementById('upd-empty').style.display=id?'none':'block';document.getElementById('upd-area').style.display=id?'block':'none';document.getElementById('upd-loading').style.display='none';document.getElementById('upd-output').style.display='none';S.updRes=id?parseInt(id):null;}
@@ -1042,17 +1042,15 @@ function autoSelectFamilyRes(){
 }
 
 // ─── Auto-save hooks ──────────────────────────────────────
-// Patch saveObs to also persist
-const _origSaveObs=saveObs;
+// (loadSampleData and saveObsData are the real implementations, defined earlier;
+// these wrap them with persistence without the function-hoisting self-recursion bug)
 function saveObs(){
-  _origSaveObs();
+  saveObsData();
   savePilotData();
 }
 
-// Patch loadSample to also persist
-const _origLoadSample=loadSample;
 function loadSample(){
-  _origLoadSample();
+  loadSampleData();
   savePilotData();
 }
 
