@@ -553,6 +553,7 @@ select:focus{outline:none;border-color:var(--teal);}
     </div>
     <div id="prof-empty" class="card" style="text-align:center;padding:48px;"><div style="font-size:28px;margin-bottom:10px;opacity:0.4;">👤</div><div style="font-size:15px;font-weight:500;margin-bottom:6px;">Select a resident</div><div style="font-size:13px;color:var(--text-muted);">Load sample data first</div></div>
     <div id="prof-content" style="display:none;">
+      <div id="prof-risk-banner" style="margin-bottom:14px;"></div>
       <div class="grid-2" style="margin-bottom:14px;align-items:start;">
         <div class="card">
           <div style="display:flex;align-items:center;gap:14px;margin-bottom:14px;">
@@ -873,7 +874,33 @@ function populateAll(){
   document.getElementById('fam-res-mode').innerHTML="<option value=''>Select resident's family...</option>"+S.residents.map(r=>`<option value="${r.id}">${r.contact.split(' (')[0]} — ${r.name.split(' ')[0]}</option>`).join('');
 }
 function lastObs(id){const o=S.observations.find(x=>x.id===id);return o?o.date:'No observations';}
-function handleRiskAction(id,action){const tab=document.querySelector('.nav-tab[onclick*="updates"]');if(action.includes('update')||action.includes('Generate')){document.getElementById('upd-res').value=id;changeUpdRes();sPage('updates',tab);}else if(action.includes('Flag')||action.includes('Review')){document.getElementById('prof-res').value=id;loadProf();sPage('profile',document.querySelector('.nav-tab[onclick*="profile"]'));}toast(action+' — navigating to relevant section');}
+function handleRiskAction(id,action,flagIndex){
+  const isUpdateAction=action.includes('update')||action.includes('Generate');
+  if(isUpdateAction){
+    document.getElementById('upd-res').value=id;changeUpdRes();sPage('updates',document.querySelector('.nav-tab[onclick*="updates"]'));
+    toast(action+' — navigating to Family Updates');
+    return;
+  }
+  if(typeof flagIndex!=='number'){
+    // Clicked from the dashboard — navigate to the resident's profile for full context before resolving
+    const r=S.residents.find(x=>x.id===id);
+    document.getElementById('prof-res').value=id;
+    loadProf();
+    sPage('profile',document.querySelector('.nav-tab[onclick*="profile"]'));
+    toast(action+' — review on '+(r?r.name.split(' ')[0]:'the resident')+"'s profile");
+    return;
+  }
+  // Clicked from the resident's profile page — resolve the flag
+  const r=S.residents.find(x=>x.id===id);
+  if(r&&r.riskFlags&&r.riskFlags[flagIndex]){
+    r.riskFlags.splice(flagIndex,1);
+    savePilotData();
+    populateAll();
+    document.getElementById('prof-res').value=id;
+    loadProf();
+    toast('✓ '+action+' — marked complete and cleared from active flags');
+  }
+}
 
 function setMode(mode){document.getElementById('staff-app').style.display=mode==='staff'?'block':'none';document.getElementById('family-app').style.display=mode==='family'?'block':'none';const fws=document.getElementById('fam-who-sel');if(fws)fws.style.display=mode==='family'?'flex':'none';document.getElementById('btn-staff').className='mode-btn'+(mode==='staff'?' active-staff':'');document.getElementById('btn-family').className='mode-btn'+(mode==='family'?' active-family':'');if(mode==='family'){const v=document.getElementById('fam-res-mode').value;if(v){const r=S.residents.find(x=>x.id===parseInt(v));if(r)renderFamilyView(r,getUpdate(r.id));}}}
 function switchFamRes(){const id=parseInt(document.getElementById('fam-res-mode').value);if(!id)return;const r=S.residents.find(x=>x.id===id);if(r)renderFamilyView(r,getUpdate(r.id));}
@@ -964,7 +991,9 @@ function showItab(n,el){['narrative','activity','guidance'].forEach(t=>document.
 function approveUpd(){toast('Update approved and queued for delivery');if(S.familyRes){const fm=document.getElementById('fam-res-mode');if(fm)fm.value=S.familyRes.id;renderFamilyView(S.familyRes,getUpdate(S.familyRes.id));}}
 function previewFamily(){if(!S.familyRes){toast('Generate an update first');return;}const fm=document.getElementById('fam-res-mode');if(fm)fm.value=S.familyRes.id;renderFamilyView(S.familyRes,getUpdate(S.familyRes.id));document.getElementById('staff-app').style.display='none';document.getElementById('family-app').style.display='block';document.getElementById('fam-who-sel').style.display='flex';document.getElementById('btn-staff').className='mode-btn';document.getElementById('btn-family').className='mode-btn active-family';}
 
-function loadProf(){const id=parseInt(document.getElementById('prof-res').value);if(!id){document.getElementById('prof-empty').style.display='block';document.getElementById('prof-content').style.display='none';return;}const r=S.residents.find(x=>x.id===id);if(!r)return;document.getElementById('prof-empty').style.display='none';document.getElementById('prof-content').style.display='block';const av=document.getElementById('prof-av');av.textContent=r.initials;av.className='avatar '+r.av;av.style.cssText='width:52px;height:52px;font-size:16px;';document.getElementById('prof-name').textContent=r.name;document.getElementById('prof-sub').textContent='Age '+r.age+' · '+r.type;const tc=r.av.includes('teal')?'teal':r.av.includes('blue')?'blue':r.av.includes('amber')?'amber':'coral';document.getElementById('prof-tags').innerHTML=r.type==='Cognitive Concerns — Not Yet Diagnosed'?`<span class="tag tag-${tc}">Evaluation Pending</span>`:`<span class="tag tag-${tc}">${r.stage} Stage</span>`;document.getElementById('prof-room').textContent=r.room;document.getElementById('prof-admitted').textContent=r.admitted;document.getElementById('prof-contact').textContent=r.contact;document.getElementById('prof-physician').textContent=r.physician;document.getElementById('prof-bio').textContent=r.bio;document.getElementById('prof-care').textContent=r.care;document.getElementById('prof-prefs').innerHTML=r.prefs.map(p=>`<span class="tag tag-teal">${p}</span>`).join('');const steps=STAGES.map((l,i)=>{const cls=i<r.stageIdx?'st-done':i===r.stageIdx?'st-current':'st-future';return `<div class="st-step ${cls}"><div class="st-dot">${i<r.stageIdx?'✓':i+1}</div><div class="st-label">${l}</div></div>${i<4?`<div class="st-line ${i<r.stageIdx?'done':''}"></div>`:''}`}).join('');document.getElementById('prof-stage').innerHTML='<div class="stage-track">'+steps+'</div>';const obs=S.observations.filter(o=>o.id===id).slice(0,4);document.getElementById('prof-tl').innerHTML=obs.length?obs.map(o=>{const t=o.neg.length===0?'pos':o.sev==='Significant'?'neg':'neu';return `<div class="tl-item"><div class="tl-dot tl-${t}">${t==='pos'?'✓':t==='neg'?'!':'~'}</div><div class="tl-box"><div class="tl-date">${o.date} · ${o.shift}</div><div class="tl-desc">${o.notes.substring(0,110)}${o.notes.length>110?'...':''}</div></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--text-muted);">No observations recorded yet.</div>';}
+function loadProf(){const id=parseInt(document.getElementById('prof-res').value);if(!id){document.getElementById('prof-empty').style.display='block';document.getElementById('prof-content').style.display='none';return;}const r=S.residents.find(x=>x.id===id);if(!r)return;document.getElementById('prof-empty').style.display='none';document.getElementById('prof-content').style.display='block';const av=document.getElementById('prof-av');av.textContent=r.initials;av.className='avatar '+r.av;av.style.cssText='width:52px;height:52px;font-size:16px;';document.getElementById('prof-name').textContent=r.name;document.getElementById('prof-sub').textContent='Age '+r.age+' · '+r.type;const tc=r.av.includes('teal')?'teal':r.av.includes('blue')?'blue':r.av.includes('amber')?'amber':'coral';document.getElementById('prof-tags').innerHTML=r.type==='Cognitive Concerns — Not Yet Diagnosed'?`<span class="tag tag-${tc}">Evaluation Pending</span>`:`<span class="tag tag-${tc}">${r.stage} Stage</span>`;document.getElementById('prof-room').textContent=r.room;document.getElementById('prof-admitted').textContent=r.admitted;document.getElementById('prof-contact').textContent=r.contact;document.getElementById('prof-physician').textContent=r.physician;document.getElementById('prof-bio').textContent=r.bio;document.getElementById('prof-care').textContent=r.care;document.getElementById('prof-prefs').innerHTML=r.prefs.map(p=>`<span class="tag tag-teal">${p}</span>`).join('');
+  document.getElementById('prof-risk-banner').innerHTML=(r.riskFlags&&r.riskFlags.length)?r.riskFlags.map((f,i)=>`<div class="risk-flag ${f.level}"><div class="risk-icon">${f.level==='red'?'🔴':f.level==='amber'?'🟡':'🟢'}</div><div class="risk-text"><div class="risk-label">${f.label}</div>${f.detail}</div><button class="risk-action" onclick="handleRiskAction(${r.id},'${f.action}',${i})">${f.action}</button></div>`).join(''):'';
+  const steps=STAGES.map((l,i)=>{const cls=i<r.stageIdx?'st-done':i===r.stageIdx?'st-current':'st-future';return `<div class="st-step ${cls}"><div class="st-dot">${i<r.stageIdx?'✓':i+1}</div><div class="st-label">${l}</div></div>${i<4?`<div class="st-line ${i<r.stageIdx?'done':''}"></div>`:''}`}).join('');document.getElementById('prof-stage').innerHTML='<div class="stage-track">'+steps+'</div>';const obs=S.observations.filter(o=>o.id===id).slice(0,4);document.getElementById('prof-tl').innerHTML=obs.length?obs.map(o=>{const t=o.neg.length===0?'pos':o.sev==='Significant'?'neg':'neu';return `<div class="tl-item"><div class="tl-dot tl-${t}">${t==='pos'?'✓':t==='neg'?'!':'~'}</div><div class="tl-box"><div class="tl-date">${o.date} · ${o.shift}</div><div class="tl-desc">${o.notes.substring(0,110)}${o.notes.length>110?'...':''}</div></div></div>`;}).join(''):'<div style="font-size:12px;color:var(--text-muted);">No observations recorded yet.</div>';}
 
 function renderFamilyView(r,d){
   if(!r)return;
